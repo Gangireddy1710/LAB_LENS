@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab Lens — AI Lab Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ── SETUP SCREEN ── -->
+  <div id="setup-screen">
+    <div class="setup-inner">
+      <div class="setup-logo">
+        <div class="logo-icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <rect x="4" y="4" width="12" height="12" rx="2" stroke="#2dd4bf" stroke-width="1.5"/>
+            <rect x="20" y="4" width="12" height="12" rx="2" stroke="#5b8dee" stroke-width="1.5"/>
+            <rect x="4" y="20" width="12" height="12" rx="2" stroke="#5b8dee" stroke-width="1.5"/>
+            <rect x="20" y="20" width="12" height="12" rx="2" stroke="#2dd4bf" stroke-width="1.5"/>
+            <path d="M10 10 L26 26M26 10 L10 26" stroke="#ffffff" stroke-width="0.75" opacity="0.3"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="logo-title">Lab Lens</h1>
+          <p class="logo-sub">AI-Powered Lab Assistant</p>
+        </div>
+      </div>
+
+      <div class="setup-tagline">
+        <p>Point your camera at any lab equipment, circuit board, or manual.</p>
+        <p>Get instant theory, formulas, and guided steps.</p>
+      </div>
+
+      <div class="setup-features">
+        <div class="feat-item"><span class="feat-dot teal"></span>Instant AI analysis via camera or upload</div>
+        <div class="feat-item"><span class="feat-dot blue"></span>Theory, formulas &amp; component breakdown</div>
+        <div class="feat-item"><span class="feat-dot teal"></span>Step-by-step checklist with live timers</div>
+        <div class="feat-item"><span class="feat-dot blue"></span>Works with electronics, chemistry &amp; physics</div>
+      </div>
+
+      <div class="setup-form">
+        <label class="setup-label" for="api-key-input">
+          Anthropic API Key
+          <a href="https://console.anthropic.com/settings/keys" target="_blank" class="get-key-link">Get yours →</a>
+        </label>
+        <div class="input-wrap">
+          <input
+            type="password"
+            id="api-key-input"
+            class="api-key-input"
+            placeholder="sk-ant-…"
+            autocomplete="off"
+          />
+          <button id="toggle-key-vis" class="toggle-vis" title="Show/Hide">
+            <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <p class="key-note">Your key is stored only in this browser. Never shared.</p>
+        <button id="start-btn" class="btn-primary full-w">
+          <span>Open Lab Lens</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+        <button id="demo-btn" class="btn-ghost full-w">Try Demo Mode (no key needed)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN APP ── -->
+  <div id="app" class="app hidden">
+
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-logo">
+        <div class="logo-icon sm">
+          <svg width="20" height="20" viewBox="0 0 36 36" fill="none">
+            <rect x="4" y="4" width="12" height="12" rx="2" stroke="#2dd4bf" stroke-width="2"/>
+            <rect x="20" y="4" width="12" height="12" rx="2" stroke="#5b8dee" stroke-width="2"/>
+            <rect x="4" y="20" width="12" height="12" rx="2" stroke="#5b8dee" stroke-width="2"/>
+            <rect x="20" y="20" width="12" height="12" rx="2" stroke="#2dd4bf" stroke-width="2"/>
+          </svg>
+        </div>
+        <span class="header-title">Lab Lens</span>
+        <span id="demo-badge" class="demo-badge hidden">Demo</span>
+      </div>
+      <button id="settings-btn" class="icon-btn" title="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+
+      <!-- ── TAB: HOME ── -->
+      <section id="tab-home" class="tab-panel active">
+        <div class="home-hero">
+          <div class="hero-text">
+            <p class="hero-eyebrow">Ready to scan</p>
+            <h2 class="hero-heading">What are we<br>working on today?</h2>
+          </div>
+          <div class="hero-quick-btns">
+            <button class="quick-btn" data-tab="scan" data-type="equipment">
+              <span class="qb-icon">🔬</span>
+              <span>Equipment</span>
+            </button>
+            <button class="quick-btn" data-tab="scan" data-type="circuit">
+              <span class="qb-icon">⚡</span>
+              <span>Circuit</span>
+            </button>
+            <button class="quick-btn" data-tab="scan" data-type="manual">
+              <span class="qb-icon">📋</span>
+              <span>Manual</span>
+            </button>
+            <button class="quick-btn" data-tab="scan" data-type="chemical">
+              <span class="qb-icon">🧪</span>
+              <span>Chemistry</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="home-section">
+          <h3 class="section-label">How it works</h3>
+          <div class="how-steps">
+            <div class="how-step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <p class="step-title">Scan or describe</p>
+                <p class="step-desc">Point your camera at lab equipment, a circuit board, or lab manual page.</p>
+              </div>
+            </div>
+            <div class="how-step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <p class="step-title">Get instant analysis</p>
+                <p class="step-desc">AI identifies the subject and returns theory, formulas, and components.</p>
+              </div>
+            </div>
+            <div class="how-step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <p class="step-title">Work through it</p>
+                <p class="step-desc">Follow the generated checklist. Each step has its own live timer.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="recent-section" class="home-section hidden">
+          <h3 class="section-label">Recent sessions</h3>
+          <div id="recent-list" class="recent-list"></div>
+        </div>
+      </section>
+
+      <!-- ── TAB: SCAN ── -->
+      <section id="tab-scan" class="tab-panel">
+        <!-- Scan type selector -->
+        <div class="scan-type-bar">
+          <button class="type-chip active" data-type="equipment">Equipment</button>
+          <button class="type-chip" data-type="circuit">Circuit</button>
+          <button class="type-chip" data-type="manual">Manual</button>
+          <button class="type-chip" data-type="chemical">Chemistry</button>
+        </div>
+
+        <!-- Camera view -->
+        <div class="camera-wrap" id="camera-wrap">
+          <video id="camera-video" autoplay playsinline muted></video>
+          <canvas id="camera-canvas" class="hidden"></canvas>
+          <!-- Scanner UI overlay -->
+          <div class="scanner-overlay" id="scanner-overlay">
+            <div class="corner tl"></div>
+            <div class="corner tr"></div>
+            <div class="corner bl"></div>
+            <div class="corner br"></div>
+            <div class="scan-line" id="scan-line"></div>
+          </div>
+          <!-- Captured preview -->
+          <img id="captured-img" class="captured-preview hidden" alt="Captured" />
+          <!-- Camera placeholder (no stream) -->
+          <div class="camera-placeholder" id="camera-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            <p>Camera not started</p>
+          </div>
+        </div>
+
+        <!-- Camera controls -->
+        <div class="cam-controls">
+          <button id="start-cam-btn" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+            </svg>
+            Start Camera
+          </button>
+          <button id="capture-btn" class="btn-primary" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            Capture
+          </button>
+          <button id="retake-btn" class="btn-ghost hidden">
+            Retake
+          </button>
+        </div>
+
+        <!-- Divider -->
+        <div class="or-divider"><span>or</span></div>
+
+        <!-- File upload -->
+        <div class="upload-area" id="upload-area">
+          <input type="file" id="file-input" accept="image/*" class="hidden" />
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <p class="upload-label">Upload an image</p>
+          <p class="upload-hint">JPG, PNG, WEBP — tap to browse</p>
+        </div>
+
+        <!-- Describe fallback -->
+        <div class="describe-section">
+          <p class="describe-label">Or describe what you see</p>
+          <textarea id="describe-input" class="describe-input" placeholder="e.g. Wheatstone bridge circuit with four resistors and a galvanometer…" rows="3"></textarea>
+        </div>
+
+        <!-- Analyse button -->
+        <button id="analyse-btn" class="btn-primary full-w analyse-btn" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Analyse with AI
+        </button>
+      </section>
+
+      <!-- ── TAB: ANALYSIS ── -->
+      <section id="tab-analysis" class="tab-panel">
+        <div id="analysis-empty" class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <p>No analysis yet</p>
+          <p class="empty-sub">Go to Scan to capture or upload something.</p>
+          <button class="btn-secondary" data-tab="scan">Go to Scan</button>
+        </div>
+
+        <div id="analysis-content" class="hidden">
+          <!-- Title + category -->
+          <div class="analysis-header">
+            <span id="analysis-category" class="category-chip">—</span>
+            <h2 id="analysis-title" class="analysis-title">—</h2>
+            <button id="start-session-btn" class="btn-primary">
+              Start Lab Session
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Theory -->
+          <div class="analysis-card">
+            <div class="card-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              Theory
+            </div>
+            <p id="analysis-theory" class="card-body"></p>
+          </div>
+
+          <!-- Formulas -->
+          <div class="analysis-card" id="formulas-card">
+            <div class="card-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+              Formulas
+            </div>
+            <div id="formulas-list" class="formulas-list"></div>
+          </div>
+
+          <!-- Components -->
+          <div class="analysis-card" id="components-card">
+            <div class="card-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              Components / Materials
+            </div>
+            <div id="components-list" class="components-list"></div>
+          </div>
+
+          <!-- Safety -->
+          <div class="analysis-card safety-card" id="safety-card">
+            <div class="card-label safety-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Safety Notes
+            </div>
+            <ul id="safety-list" class="safety-list"></ul>
+          </div>
+
+          <!-- Expected results -->
+          <div class="analysis-card">
+            <div class="card-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Expected Results
+            </div>
+            <p id="expected-results" class="card-body"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── TAB: SESSION ── -->
+      <section id="tab-session" class="tab-panel">
+        <div id="session-empty" class="empty-state">
+          <div class="empty-icon">⏱️</div>
+          <p>No active session</p>
+          <p class="empty-sub">Analyse something first, then tap "Start Lab Session".</p>
+          <button class="btn-secondary" data-tab="scan">Start Scanning</button>
+        </div>
+
+        <div id="session-content" class="hidden">
+          <!-- Session header -->
+          <div class="session-header">
+            <div class="session-info">
+              <h2 id="session-title" class="session-title">Experiment</h2>
+              <p id="session-progress" class="session-progress">0 of 0 steps done</p>
+            </div>
+            <div class="session-timer-wrap">
+              <div class="total-timer">
+                <span class="timer-label">Total</span>
+                <span id="total-timer-display" class="total-timer-display">00:00</span>
+              </div>
+              <button id="session-pause-btn" class="timer-control-btn" title="Pause session">
+                <svg id="pause-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Progress bar -->
+          <div class="progress-track">
+            <div id="session-progress-bar" class="progress-fill"></div>
+          </div>
+
+          <!-- Checklist -->
+          <div id="checklist" class="checklist"></div>
+
+          <!-- Session complete -->
+          <div id="session-complete" class="session-complete hidden">
+            <div class="complete-icon">🎉</div>
+            <h3>Experiment Complete!</h3>
+            <p id="complete-summary" class="complete-summary"></p>
+            <button id="new-scan-btn" class="btn-primary">Scan Something New</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-tab="home">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn" data-tab="scan">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span>Scan</span>
+      </button>
+      <button class="nav-btn" data-tab="analysis">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <span>Analysis</span>
+      </button>
+      <button class="nav-btn" data-tab="session">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>Session</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Settings</h3>
+        <button id="close-settings" class="icon-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="setup-label">API Key</label>
+        <div class="input-wrap">
+          <input type="password" id="settings-api-key" class="api-key-input" placeholder="sk-ant-…" />
+        </div>
+        <button id="save-key-btn" class="btn-primary full-w" style="margin-top:12px">Save Key</button>
+        <button id="clear-data-btn" class="btn-danger full-w" style="margin-top:10px">Clear All Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="loading-inner">
+      <div class="loading-scanner">
+        <div class="ls-corner tl"></div>
+        <div class="ls-corner tr"></div>
+        <div class="ls-corner bl"></div>
+        <div class="ls-corner br"></div>
+        <div class="ls-line"></div>
+      </div>
+      <p id="loading-status" class="loading-status">Analysing image…</p>
+      <p class="loading-sub">This takes about 5–10 seconds</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
